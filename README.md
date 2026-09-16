@@ -1,4 +1,5 @@
 ![workflow](https://github.com/<UserName>/<RepositoryName>/actions/workflows/main.yml/badge.svg)
-
+# DevOps
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/<username>/<repository>/<action name taken from main.yml>/<branch>?style=flat-square)
 ------------------------------------
 This my lab work where I practice git 
