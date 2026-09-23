@@ -1,41 +1,64 @@
 package com.napier.sem;
 
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.MongoCollection;
-import org.bson.Document;
+import java.sql.*;
 
-public class App
-{
-    public static void main(String[] args)
-    {
-        // Get MongoDB connection details from environment variables
-        // Defaults allow the application to run directly on the Mac
-        String mongoHost = System.getenv().getOrDefault("MONGO_HOST", "localhost");
-        int mongoPort = Integer.parseInt(
-                System.getenv().getOrDefault("MONGO_PORT", "27000")
-        );
+public class App {
+    public static void main(String[] args) {
+        try {
+            // Load Database driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        }
+        catch (ClassNotFoundException e) {
+            System.out.println("Could not load SQL driver");
+            System.exit(-1);
+        }
 
-        // Connect to MongoDB
-        MongoClient mongoClient = new MongoClient(mongoHost, mongoPort);
+        // Connection to the database
+        Connection con = null;
+        int retries = 100;
 
-        // Get a database - will create when we use it
-        MongoDatabase database = mongoClient.getDatabase("mydb");
+        for (int i = 0; i < retries; ++i) {
+            System.out.println("Connecting to database...");
 
-        // Get a collection from the database
-        MongoCollection<Document> collection = database.getCollection("test");
+            try {
+                // Wait a bit for db to start
+                Thread.sleep(30000);
 
-        // Create a document to store
-        Document doc = new Document("name", "Kevin Sim")
-                .append("class", "DevOps")
-                .append("year", "2024")
-                .append("result", new Document("CW", 95).append("EX", 85));
+                // Connect to database
+                con = DriverManager.getConnection(
+                        "jdbc:mysql://db:3306/employees?allowPublicKeyRetrieval=true&useSSL=false",
+                        "root",
+                        "example"
+                );
 
-        // Add document to collection
-        collection.insertOne(doc);
+                System.out.println("Successfully connected");
 
-        // Check document in collection
-        Document myDoc = collection.find().first();
-        System.out.println(myDoc.toJson());
+                // Wait a bit
+                Thread.sleep(10000);
+
+                // Exit for loop
+                break;
+            }
+            catch (SQLException sqle) {
+                System.out.println(
+                        "Failed to connect to database attempt "
+                                + Integer.toString(i)
+                );
+                System.out.println(sqle.getMessage());
+            }
+            catch (InterruptedException ie) {
+                System.out.println("Thread interrupted? Should not happen.");
+            }
+        }
+
+        if (con != null) {
+            try {
+                // Close connection
+                con.close();
+            }
+            catch (Exception e) {
+                System.out.println("Error closing connection to database");
+            }
+        }
     }
 }
