@@ -1,9 +1,11 @@
+name: DevOps CI
 name: A workflow for my Hello World App
 
 on: push
 
 jobs:
   build:
+    name: Build and Test Application
     name: Hello World Action
     runs-on: ubuntu-22.04
 
@@ -15,6 +17,10 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
+          distribution: 'adopt'
+
+      - name: Package with Maven
+        run: mvn clean package
           distribution: 'temurin'
 
       - name: Compile with Maven
@@ -23,6 +29,23 @@ jobs:
       - name: Build Docker Image
         run: docker build -t devopsimage .
 
+      - name: Create Docker Network
+        run: docker network create devops-network
+
+      - name: Start MongoDB
+        run: docker run -d --name mongodb --network devops-network mongo:4.4
+
+      - name: Run Application
+        run: |
+          docker run --name devopscontainer \
+            --network devops-network \
+            -e MONGO_HOST=mongodb \
+            -e MONGO_PORT=27017 \
+            devopsimage
+
+      - name: View MongoDB Logs
+        if: always()
+        run: docker logs mongodb
       - name: Run Image
         run: docker run --name devopscontainer -d devopsimage
 
