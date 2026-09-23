@@ -1,4 +1,5 @@
-![workflow](https://github.com/<UserName>/<RepositoryName>/actions/workflows/main.yml/badge.svg)
+![workflow](https://github.com/George-Freeman/DevOps-Labs/actions/workflows/main.yml/badge.svg)
 
-------------------------------------
-This my lab work where I practice git 
+---
+
+This repository contains my lab work for SET08803 DevOps.
